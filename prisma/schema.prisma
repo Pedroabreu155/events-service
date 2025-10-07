@@ -13,3 +13,33 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model EventoAuditoria {
+  eaud_codigo                  Int         @id @default(autoincrement())
+  eaud_timestamp               DateTime    @map("eaud_timestamp") // ISO 8601
+  eaud_user_pess_oras_codigo   String      @map("eaud_user_pess_oras_codigo")
+  eaud_client_pess_oras_codigo String      @map("eaud_client_pess_oras_codigo")
+  eaud_tipo_evento             String      @map("eaud_tipo_evento")
+  eaud_ip_origem               String      @map("eaud_ip_origem")
+  eaud_criticidade             Criticidade @map("eaud_criticidade")
+  eaud_resultado               Resultado   @map("eaud_resultado")
+  eaud_id_correlacao           String?     @map("eaud_id_correlacao")
+  eaud_id_entidade             String?     @map("eaud_id_entidade")
+  eaud_detalhes_json           Json?       @map("eaud_detalhes_json")
+  eaud_data_cadastro           DateTime    @map("eaud_data_cadastro")
+  eaud_usuario_adicionou       String      @map("eaud_usuario_adicionou")
+  eaud_usuario_alterou         String      @map("eaud_usuario_alterou")
+
+  @@map("eaud_evento_auditoria") // nome da tabela no banco
+}
+
+enum Criticidade {
+  ALTA
+  MEDIA
+  BAIXA
+}
+
+enum Resultado {
+  SUCESSO
+  FALHA
+}
