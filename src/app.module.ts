@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
 import { PrismaService } from './v1/prisma/prisma.service'
-import { PostEventController } from './v1/controllers/post-event.controller'
 import { envSchema } from './env/env'
 import { EnvModule } from './env/env.module'
+import { EventsModule } from './v1/events/events.module'
+import { AppController } from './app.controller'
 
 @Module({
   imports: [
@@ -13,8 +14,9 @@ import { EnvModule } from './env/env.module'
       isGlobal: true,
     }),
     EnvModule,
+    EventsModule,
   ],
-  controllers: [PostEventController],
   providers: [PrismaService],
+  controllers: [AppController],
 })
 export class AppModule {}
