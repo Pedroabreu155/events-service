@@ -1,4 +1,5 @@
-POST http://localhos:3333/v1/audit/events
+##TESTE VALIDO
+POST http://localhost:3333/v1/audit/events
 Content-Type: application/json
 
 {
