@@ -4,8 +4,8 @@ export const eventPayloadSchema = z.object({
   timestamp: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: 'timestamp deve estar no formato ISO 8601',
   }),
-  userId: z.string().nonempty('userId é obrigatório'),
-  clientId: z.string().nonempty('clientId é obrigatório'),
+  userId: z.number('userId é origatório'),
+  clientId: z.number('clientId é oobrigatório'),
   eventType: z.string().nonempty('eventType é obrigatório'),
   sourceIp: z.string().nonempty('sourceIp é obrigatório'),
   criticality: z.enum(['HIGH', 'MEDIUM', 'LOW'], 'criticality inválido'),
