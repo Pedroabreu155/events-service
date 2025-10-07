@@ -17,8 +17,8 @@ datasource db {
 model EventoAuditoria {
   eaud_codigo                  Int         @id @default(autoincrement())
   eaud_timestamp               DateTime    @map("eaud_timestamp") // ISO 8601
-  eaud_user_pess_oras_codigo   String      @map("eaud_user_pess_oras_codigo")
-  eaud_client_pess_oras_codigo String      @map("eaud_client_pess_oras_codigo")
+  eaud_user_pess_oras_codigo   Int         @map("eaud_user_pess_oras_codigo")
+  eaud_client_pess_oras_codigo Int         @map("eaud_client_pess_oras_codigo")
   eaud_tipo_evento             String      @map("eaud_tipo_evento")
   eaud_ip_origem               String      @map("eaud_ip_origem")
   eaud_criticidade             Criticidade @map("eaud_criticidade")
