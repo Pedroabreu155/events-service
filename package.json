@@ -20,10 +20,18 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.65.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.206.0",
+    "@opentelemetry/resources": "^2.1.0",
+    "@opentelemetry/sdk-node": "^0.206.0",
+    "@opentelemetry/semantic-conventions": "^1.37.0",
     "@prisma/client": "^6.16.3",
+    "nest-winston": "^1.10.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
+    "winston": "^3.18.3",
     "zod": "^4.1.12"
   },
   "devDependencies": {
