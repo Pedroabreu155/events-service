@@ -3,7 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
 
 import { AppModule } from './app.module'
-import { EnvService } from './env/env'
+import { EnvService } from './env/env.service'
 import { setupTracing } from './tracing'
 import { AllExceptionsFilter } from './v1/filters/exceptions'
 

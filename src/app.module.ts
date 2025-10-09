@@ -13,7 +13,16 @@ import { OtelHttpMiddleware } from './v1/middlewares/otel-http-middleware'
 @Module({
   imports: [
     ConfigModule.forRoot({
-      validate: (env) => envSchema.parse(env),
+      validate: (env) => {
+        const parsed = envSchema.safeParse(env)
+
+        if (!parsed.success) {
+          console.error('❌ Erro de validação nas variáveis de ambiente:')
+          console.error(parsed.error.issues)
+          process.exit(1) // força o app a parar
+        }
+        return parsed.data
+      },
       isGlobal: true,
     }),
     EnvModule,
