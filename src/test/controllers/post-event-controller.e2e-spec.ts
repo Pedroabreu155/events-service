@@ -104,5 +104,6 @@ describe('Post event (E2E)', () => {
       })
 
     expect(res.statusCode).toBe(400)
+    expect(res.body).toHaveProperty('message', 'Validation failed')
   })
 })
