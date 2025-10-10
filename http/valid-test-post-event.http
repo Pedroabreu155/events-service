@@ -1,0 +1,25 @@
+##TESTE VALIDO
+POST http://localhost:3333/v1/audit/events
+Content-Type: application/json
+
+{
+  "timestamp": "2025-10-07T13:45:00Z",
+  "userId": "user-12345",
+  "clientId": "client-98765",
+  "eventType": "LOGIN_SUCCESS",
+  "sourceIp": "192.168.1.10",
+  "criticality": "LOW",
+  "result": "SUCCESS",
+  "correlationId": "corr-abc123",
+  "entityId": "entity-456",
+  "details": {
+    "browser": "Chrome",
+    "os": "Windows 11",
+    "location": "São Paulo, BR",
+    "sessionDuration": 3600,
+    "metadata": {
+      "device": "desktop",
+      "screenResolution": "1920x1080"
+    }
+  }
+}

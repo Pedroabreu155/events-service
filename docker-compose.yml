@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   rabbitmq:
     image: rabbitmq:3.11-management
@@ -8,6 +7,8 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - project_network
 
   postgres:
     image: postgres:15
@@ -19,17 +20,48 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - project_network
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    networks:
+      - project_network
 
   jaeger:
-    image: jaegertracing/all-in-one:1.47
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
     ports:
-      - "6831:6831/udp"
-      - "16686:16686"
+      - "8081:16686"  # Jaeger UI
+      - "14268"
+      - "14250"
+    networks:
+      - project_network
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # http gRPC receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - jaeger
+    links:
+      - jaeger
+    networks:
+      - project_network
 
 volumes:
   pgdata:
+
+networks:
+  project_network:
+    driver: bridge
