@@ -5,7 +5,7 @@ export const eventPayloadSchema = z.object({
     message: 'timestamp deve estar no formato ISO 8601',
   }),
   userId: z.number('userId é origatório'),
-  clientId: z.number('clientId é oobrigatório'),
+  clientId: z.number('clientId é obrigatório'),
   eventType: z.string().nonempty('eventType é obrigatório'),
   sourceIp: z.string().nonempty('sourceIp é obrigatório'),
   criticality: z.enum(['HIGH', 'MEDIUM', 'LOW'], 'criticality inválido'),

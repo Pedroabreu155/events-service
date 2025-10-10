@@ -18,11 +18,11 @@ import { EventPayloadDto } from '../interfaces/dto.docs'
 @ApiTags('audit')
 @Controller('/v1/audit/events')
 export class PostEventController {
+  @ApiBody({ type: EventPayloadDto })
   @Post()
   @HttpCode(201)
   @UsePipes(new ZodValidationPipe(eventPayloadSchema))
-  @ApiBody({ type: EventPayloadDto })
   async handle(@Body() payload: EventPayload) {
-    console.log(payload)
+    console.log(payload, 'PAYLOAD')
   }
 }
