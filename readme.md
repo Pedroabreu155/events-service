@@ -27,8 +27,11 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
    Crie um arquivo `.env` na raiz do projeto com base no exemplo abaixo:
 
    DATABASE_URL=postgresql://postgres:postgres@localhost:5432/audit-service
+
    PORT=3333
+
    API_KEY=your-api-key
+   
    OTEL_COLLECTOR_URL=http://localhost:4317
 
 ## Executando o projeto em ambiente de desenvolvimento
