@@ -31,26 +31,26 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
    PORT=3333
 
    API_KEY=your-api-key
-   
+
    OTEL_COLLECTOR_URL=http://localhost:4317
 
 ## Executando o projeto em ambiente de desenvolvimento
 
 1. Suba os serviços necessários (PostgreSQL, RabbitMQ, Redis, Jaeger e OpenTelemetry Collector) usando o Docker Compose:
 
-   docker-compose up -d
+   ``docker-compose up -d``
 
 2. Gere o cliente Prisma:
 
-   npx prisma generate
+   ``npx prisma generate``
 
 3. Execute as migrações do banco de dados:
 
-   npx prisma migrate dev
+   ``npx prisma migrate dev``
 
 4. Inicie o servidor em modo de desenvolvimento:
 
-   npm run start:dev
+   ``npm run start:dev``
 
 5. Acesse a documentação da API no Swagger em: http://localhost:3333/docs
 
@@ -73,13 +73,13 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
 
 Para rodar os testes unitários:
 
-   npm run test
+   ``npm run test``
 
 ### Testes de Integração (E2E)
 
 Para rodar os testes de integração:
 
-   npm run test:e2e
+   ``npm run test:e2e``
 
 ## Estrutura do Projeto
 
@@ -99,7 +99,3 @@ Para rodar os testes de integração:
 ## Observabilidade
 
 O projeto utiliza OpenTelemetry para rastreamento distribuído. Certifique-se de que o OpenTelemetry Collector e o Jaeger estejam rodando para visualizar os traces.
-
-## Contribuição
-
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull requests.
