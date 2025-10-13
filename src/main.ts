@@ -1,25 +1,20 @@
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
 
 import { EnvService } from '@/env/env.service'
-import { setupTracing } from '@/tracing'
-import { AllExceptionsFilter } from '@/v1/filters/exceptions'
+import { AllExceptionsFilter } from '@/filters/exceptions'
 import { AppModule } from '@/app.module'
+import { LoggerService } from '@/logger/logger.service'
 
 async function bootstrap() {
-  await setupTracing()
-
   const app = await NestFactory.create(AppModule, {
-    logger: false,
+    bufferLogs: true,
   })
 
-  const logger = app.get(WINSTON_MODULE_NEST_PROVIDER)
+  const logger = app.get(LoggerService)
   app.useLogger(logger)
 
-  app.useGlobalFilters(
-    new AllExceptionsFilter(app.get(WINSTON_MODULE_NEST_PROVIDER)),
-  )
+  app.useGlobalFilters(new AllExceptionsFilter(logger))
 
   const config = new DocumentBuilder()
     .setTitle('Audit Service API')

@@ -1,13 +1,14 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
-import { PrismaService } from './v1/prisma/prisma.service'
-import { envSchema } from './env/env'
-import { EnvModule } from './env/env.module'
-import { EventsModule } from './v1/events/events.module'
-import { AppController } from './app.controller'
-import { OtelHttpMiddleware } from './v1/middlewares/otel-http-middleware'
-import { LoggerModule } from '@/v1/logger/logger.module'
+import { PrismaService } from '@/v1/prisma/prisma.service'
+import { envSchema } from '@/env/env'
+import { EnvModule } from '@/env/env.module'
+import { EventsModule } from '@/v1/events/events.module'
+import { AppController } from '@/app.controller'
+import { LoggerModule } from '@/logger/logger.module'
+import { OpenTelemetryModule } from '@/infra/opentelemetry/opentelemetry.module'
+import { OtelRequestMiddleware } from '@/middlewares/otel-request-middleware'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { LoggerModule } from '@/v1/logger/logger.module'
     }),
     EnvModule,
     LoggerModule,
+    OpenTelemetryModule,
     EventsModule,
   ],
   providers: [PrismaService],
@@ -33,6 +35,6 @@ import { LoggerModule } from '@/v1/logger/logger.module'
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(OtelHttpMiddleware).forRoutes('*')
+    consumer.apply(OtelRequestMiddleware).forRoutes('*')
   }
 }
