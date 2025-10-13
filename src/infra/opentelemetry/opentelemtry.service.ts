@@ -38,6 +38,8 @@ export class OpenTelemetryService implements OnModuleInit, OnModuleDestroy {
       url: this.envService.get('OTEL_OTLP_LOGS_EXPORTER_URL'),
     })
 
+    console.log(this.envService.get('OTEL_OTLP_LOGS_EXPORTER_URL'))
+
     this.sdk = new NodeSDK({
       resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: this.envService.get('OTEL_SERVICE_NAME'),

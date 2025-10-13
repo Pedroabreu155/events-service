@@ -8,7 +8,7 @@ import {
 import { Request, Response } from 'express'
 import {
   trace,
-  context as otelcontext,
+  context as otelContext,
   SpanStatusCode,
 } from '@opentelemetry/api'
 
@@ -31,7 +31,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const message =
       exception instanceof HttpException ? exception.getResponse() : exception
 
-    const span = trace.getSpan(otelcontext.active())
+    const span = trace.getSpan(otelContext.active())
     const traceId = span?.spanContext().traceId ?? 'no-trace'
     const spanId = span?.spanContext().spanId ?? 'no-span'
 
@@ -50,8 +50,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     response.status(status).json({
       statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
       traceId,
       message,
     })
