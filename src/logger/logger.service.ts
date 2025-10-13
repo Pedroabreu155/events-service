@@ -1,4 +1,5 @@
 import winston from 'winston'
+import 'winston-daily-rotate-file'
 import opentelemetry from '@opentelemetry/api'
 import { Logger, SeverityNumber, logs } from '@opentelemetry/api-logs'
 import { Request, Response } from 'express'
@@ -10,6 +11,7 @@ import { EnvService } from '@/env/env.service'
 export class LoggerService implements NestLoggerService {
   logger: Logger
   consoleLogger: winston.Logger
+  fileLogger: winston.Logger
   level: 'info' | 'error' | 'debug' | 'fatal' | 'warn' = 'info'
 
   constructor(private envService: EnvService) {
@@ -17,6 +19,7 @@ export class LoggerService implements NestLoggerService {
       envService.get('OTEL_SERVICE_NAME'),
       envService.get('OTEL_SERVICE_VERSION'),
     )
+
     this.level = envService.get('LOG_LEVEL') as
       | 'info'
       | 'error'
@@ -46,6 +49,32 @@ export class LoggerService implements NestLoggerService {
       ),
       transports,
     })
+
+    this.fileLogger = winston.createLogger({
+      level: this.level,
+      format: winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+        winston.format((info) => {
+          const span = opentelemetry.trace.getActiveSpan()
+          if (span) {
+            info.spanId = span.spanContext().spanId
+            info.traceId = span.spanContext().traceId
+          }
+
+          return info
+        })(),
+        winston.format.json(),
+      ),
+      transports: [
+        new winston.transports.DailyRotateFile({
+          dirname: './logs',
+          filename: '%DATE%-trouw-ms-audit-service.log', // nome do arquivo por dia
+          datePattern: 'DD-MM-YYYY',
+          zippedArchive: true,
+          maxFiles: '15d',
+        }),
+      ],
+    })
   }
 
   private logMessage(
@@ -56,6 +85,7 @@ export class LoggerService implements NestLoggerService {
     const message = this.buildMessage(body)
 
     this.consoleLogger[severityText.toLowerCase()](message)
+    this.fileLogger[severityText.toLowerCase()](message)
 
     this.logger.emit({
       body: message,
