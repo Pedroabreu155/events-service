@@ -6,7 +6,11 @@ import {
   HttpStatus,
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { trace, context as otelcontext } from '@opentelemetry/api'
+import {
+  trace,
+  context as otelcontext,
+  SpanStatusCode,
+} from '@opentelemetry/api'
 
 import { LoggerService } from '@/logger/logger.service'
 
@@ -36,6 +40,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }`
 
     this.logger.error(logMessage)
+
+    if (span) {
+      span.recordException(
+        exception instanceof Error ? exception : new Error(logMessage),
+      )
+      span.setStatus({ code: SpanStatusCode.ERROR, message: logMessage })
+    }
 
     response.status(status).json({
       statusCode: status,

@@ -18,6 +18,7 @@ import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-proto'
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node'
 
 import { EnvService } from '@/env/env.service'
+import { PrismaInstrumentation } from '@prisma/instrumentation'
 
 @Injectable()
 export class OpenTelemetryService implements OnModuleInit, OnModuleDestroy {
@@ -48,7 +49,10 @@ export class OpenTelemetryService implements OnModuleInit, OnModuleDestroy {
         exportIntervalMillis: 1000,
       }),
       logRecordProcessor: new BatchLogRecordProcessor(logExporter),
-      instrumentations: [getNodeAutoInstrumentations()],
+      instrumentations: [
+        getNodeAutoInstrumentations(),
+        new PrismaInstrumentation(),
+      ],
     })
   }
 
