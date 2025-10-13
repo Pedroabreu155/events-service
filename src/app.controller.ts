@@ -1,14 +1,11 @@
-import { Controller, Get, HttpCode, Inject } from '@nestjs/common'
+import { Controller, Get, HttpCode } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston'
-import { Logger } from 'winston'
+import { LoggerService } from '@/logger/logger.service'
 
 @ApiTags('health')
 @Controller('/v1')
 export class AppController {
-  constructor(
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-  ) {}
+  constructor(private readonly logger: LoggerService) {}
 
   @Get('/health')
   @HttpCode(200)
