@@ -24,7 +24,7 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
 
 3. Configure as variáveis de ambiente:
 
-   Crie um arquivo `.env` na raiz do projeto com base no .env.example abaixo
+   Crie um arquivo `.env` na raiz do projeto com base no ``.env.example`` do repositório
 
 ## Executando o projeto em ambiente de desenvolvimento
 
