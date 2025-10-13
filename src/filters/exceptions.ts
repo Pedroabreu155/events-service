@@ -4,18 +4,15 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Inject,
 } from '@nestjs/common'
 import { Request, Response } from 'express'
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston'
-import { Logger } from 'winston'
-import { trace, context as otContext } from '@opentelemetry/api'
+import { trace, context as otelcontext } from '@opentelemetry/api'
+
+import { LoggerService } from '@/logger/logger.service'
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(
-    @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
-  ) {}
+  constructor(private readonly logger: LoggerService) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
@@ -30,18 +27,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const message =
       exception instanceof HttpException ? exception.getResponse() : exception
 
-    // Pega o span ativo do OpenTelemetry
-    const span = trace.getSpan(otContext.active())
+    const span = trace.getSpan(otelcontext.active())
     const traceId = span?.spanContext().traceId ?? 'no-trace'
     const spanId = span?.spanContext().spanId ?? 'no-span'
 
-    // Log detalhado
-    this.logger.error(
-      `[traceId:${traceId} spanId:${spanId}] ${request.method} ${request.url} - Status: ${status} - Message: ${
-        typeof message === 'string' ? message : JSON.stringify(message)
-      }`,
-    )
+    const logMessage = `[traceId:${traceId} spanId:${spanId}] ${request.method} ${request.url} - Status: ${status} - Message: ${
+      typeof message === 'string' ? message : JSON.stringify(message)
+    }`
 
-    response.status(status).json(message)
+    this.logger.error(logMessage)
+
+    response.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      traceId,
+      message,
+    })
   }
 }
