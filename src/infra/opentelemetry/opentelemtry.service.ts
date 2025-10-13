@@ -7,14 +7,14 @@ import {
 import { NodeSDK } from '@opentelemetry/sdk-node'
 import { resourceFromAttributes } from '@opentelemetry/resources'
 import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics'
-import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
+// import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs'
 import {
   ATTR_SERVICE_NAME,
   ATTR_SERVICE_VERSION,
 } from '@opentelemetry/semantic-conventions'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto'
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-proto'
-import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-proto'
+// import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-proto'
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node'
 
 import { EnvService } from '@/env/env.service'
@@ -34,11 +34,9 @@ export class OpenTelemetryService implements OnModuleInit, OnModuleDestroy {
       url: this.envService.get('OTEL_OTLP_METRICS_EXPORTER_URL'),
     })
 
-    const logExporter = new OTLPLogExporter({
-      url: this.envService.get('OTEL_OTLP_LOGS_EXPORTER_URL'),
-    })
-
-    console.log(this.envService.get('OTEL_OTLP_LOGS_EXPORTER_URL'))
+    // const logExporter = new OTLPLogExporter({
+    //   url: this.envService.get('OTEL_OTLP_LOGS_EXPORTER_URL'),
+    // })
 
     this.sdk = new NodeSDK({
       resource: resourceFromAttributes({
@@ -50,7 +48,7 @@ export class OpenTelemetryService implements OnModuleInit, OnModuleDestroy {
         exporter: metricExporter,
         exportIntervalMillis: 1000,
       }),
-      logRecordProcessor: new BatchLogRecordProcessor(logExporter),
+      // logRecordProcessor: new BatchLogRecordProcessor(logExporter),
       instrumentations: [
         getNodeAutoInstrumentations(),
         new PrismaInstrumentation(),

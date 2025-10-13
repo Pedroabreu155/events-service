@@ -64,9 +64,7 @@ export class PostEventController {
         try {
           this.logger.info(JSON.stringify(payload))
 
-          span.setAttribute('event.type', payload.eventType)
-          span.setAttribute('event.source', payload.clientId)
-
+          span.setAttribute('event', JSON.stringify(payload))
           span.setStatus({ code: api.SpanStatusCode.OK })
         } finally {
           const endTime = Date.now()

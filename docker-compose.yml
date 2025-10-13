@@ -30,8 +30,74 @@ services:
     networks:
       - project_network
 
+  jaeger-volume-init:
+    image: busybox:latest
+    container_name: jaeger-volume-init
+    volumes:
+      - jaeger-data:/badger
+    command: /bin/sh -c "chown -R 10001:10001 /badger"
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    environment:
+      # Habilita o armazenamento Badger (persistente)
+      - SPAN_STORAGE_TYPE=badger
+      # Desabilita o modo efêmero (para que os dados não sejam perdidos ao reiniciar)
+      - BADGER_EPHEMERAL=false
+      # Configura o diretório de dados para o Badger
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+      # Expõe a porta para o OpenTelemetry (OTLP) gRPC
+      - COLLECTOR_OTLP_ENABLED=true
+      # TTL dos traces
+      - BADGER_SPAN_STORE_TTL=336h
+    volumes:
+      - jaeger-data:/badger
+    ports:
+      # Porta para a UI do Jaeger
+      - "16686:16686"
+      # Porta para receber traces OTLP via gRPC
+      - "4317:4317"
+      # Porta para receber traces OTLP via HTTP
+      - "4318:4318"
+    restart: always
+    networks:
+      - project_network
+    depends_on:
+      - jaeger-volume-init
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+    volumes:
+      - ./observability/data/prometheus:/prometheus
+      - ./observability/config/prometheus-config.yaml:/etc/prometheus.yaml
+    ports:
+      - "9090:9090"
+    networks:
+      - project_network
+
+  collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./observability/config/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      - ./observability/data/otel-collector-storage:/var/lib/otelcol/storage
+    ports:
+      - 14317:4317 # gRPC
+      - 14318:4318 # HTTP
+      - "8889:8889"
+      - "13133:13133"
+    networks:
+      - project_network
 volumes:
   pgdata:
+  jaeger-data:
 
 
 networks:

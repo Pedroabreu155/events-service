@@ -7,39 +7,34 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 processors:
-  batch: {}
+  batch:
+
+exporters:
+  otlp:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  # Metrics → Prometheus
+  # prometheusremotewrite:
+  #   endpoint: "http://prometheus:9090/api/v1/write"
+  #   tls:
+  #     insecure: true
+    # Exporta métricas para Prometheus
+  prometheus:
+    endpoint: "0.0.0.0:8889"
 
 extensions:
   health_check: {}
 
-exporters:
-  otlp:
-    endpoint: tempo:4317
-    tls:
-      insecure_skip_verify: true
-      insecure: true
-  prometheus:
-    endpoint: "0.0.0.0:9464"
-    
-  otlphttp/loki:
-    endpoint: "http://loki:3100/otlp/v1/logs"
-    tls:
-      insecure: true
-  debug:
-    verbosity: detailed 
-
 service:
   extensions: [health_check]
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [debug, otlp]
     metrics:
       receivers: [otlp]
       processors: [batch]
       exporters: [prometheus]
-    logs:
+    traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [debug, otlphttp/loki]
+      exporters: [otlp]
