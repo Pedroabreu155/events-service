@@ -48,10 +48,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       span.setStatus({ code: SpanStatusCode.ERROR, message: logMessage })
     }
 
-    response.status(status).json({
-      statusCode: status,
-      traceId,
-      message,
-    })
+    response.status(status).json(message)
   }
 }
