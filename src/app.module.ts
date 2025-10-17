@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
-import { PrismaService } from '@/v1/prisma/prisma.service'
+// import { PrismaService } from '@/v1/prisma/prisma.service'
 import { envSchema } from '@/env/env'
 import { EnvModule } from '@/env/env.module'
 import { EventsModule } from '@/v1/events/events.module'
@@ -30,7 +30,7 @@ import { OtelRequestMiddleware } from '@/middlewares/otel-request-middleware'
     OpenTelemetryModule,
     EventsModule,
   ],
-  providers: [PrismaService],
+  // providers: [PrismaService],
   controllers: [AppController],
 })
 export class AppModule implements NestModule {
