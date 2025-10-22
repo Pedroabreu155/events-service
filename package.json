@@ -1,5 +1,5 @@
 {
-  "name": "audit-service",
+  "name": "trouw-ms-audit-service",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -10,17 +10,20 @@
   },
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main --name trouw-ms-audit-service-001.service",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
     "test:debug": "vitest --inspect-brk --inspect --logHeapUsage --threads=false",
-    "test:e2e": "vitest run --config ./vitest.config.e2e.mts"
+    "test:e2e": "vitest run --config ./vitest.config.e2e.mts",
+    "prisma:generate": "prisma generate",
+    "prisma:dev": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:seed": "prisma db seed",
+    "deploy": "npm run build && npm run start:prod"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -50,6 +53,8 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.37.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -58,9 +63,10 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@vitest/coverage-v8": "^3.2.4",
     "dotenv": "^17.2.3",
-    "eslint": "^8.57.1",
+    "eslint": "^9.37.0",
     "prisma": "^6.16.3",
     "source-map-support": "^0.5.21",
     "supertest": "^7.1.4",

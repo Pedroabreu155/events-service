@@ -4,8 +4,8 @@ export const envSchema = z.object({
   DATABASE_URL: z.url(),
   PORT: z.coerce.number().optional().default(3333),
   API_KEY: z.string(),
-  REDIS_URL: z.string(),
-  RABBITMQ_URL: z.string(),
+  REDIS_URL: z.url(),
+  RABBITMQ_URL: z.url(),
   OTEL_SERVICE_NAME: z.string({
     error: 'Variável de ambiente OTEL_SERVICE_NAME é obrigatória',
   }),
