@@ -6,6 +6,10 @@ export const envSchema = z.object({
   API_KEY: z.string(),
   REDIS_URL: z.url(),
   RABBITMQ_URL: z.url(),
+  RABBITMQ_DLQ_QUEUE: z.string(),
+  RABBITMQ_DLX_EXCHANGE: z.string(),
+  RABBITMQ_MAIN_QUEUE: z.string(),
+  RABBITMQ_MAIN_EXCHANGE: z.string(),
   OTEL_SERVICE_NAME: z.string({
     error: 'Variável de ambiente OTEL_SERVICE_NAME é obrigatória',
   }),
