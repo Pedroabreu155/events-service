@@ -9,6 +9,7 @@ import { AppController } from '@/app.controller'
 import { LoggerModule } from '@/logger/logger.module'
 import { OpenTelemetryModule } from '@/infra/opentelemetry/opentelemetry.module'
 import { OtelRequestMiddleware } from '@/middlewares/otel-request-middleware'
+import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { OtelRequestMiddleware } from '@/middlewares/otel-request-middleware'
     EventsModule,
   ],
   // providers: [PrismaService],
+  providers: [RabbitMQService],
   controllers: [AppController],
 })
 export class AppModule implements NestModule {

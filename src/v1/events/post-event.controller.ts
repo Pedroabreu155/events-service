@@ -17,6 +17,7 @@ import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { EventPayloadDto } from '@/v1/interfaces/dto.docs'
 import { LoggerService } from '@/logger/logger.service'
 import { EnvService } from '@/env/env.service'
+import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
 
 @UseGuards(ApiKeyGuard)
 @ApiTags('audit')
@@ -29,15 +30,16 @@ export class PostEventController {
   constructor(
     private readonly logger: LoggerService,
     private readonly envService: EnvService,
+    private readonly rabbitMQService: RabbitMQService,
   ) {
     this.tracer = opentelemetry.trace.getTracer(
-      envService.get('OTEL_SERVICE_NAME'),
-      envService.get('OTEL_SERVICE_VERSION'),
+      this.envService.get('OTEL_SERVICE_NAME'),
+      this.envService.get('OTEL_SERVICE_VERSION'),
     )
 
     this.meter = opentelemetry.metrics.getMeter(
-      envService.get('OTEL_SERVICE_NAME'),
-      envService.get('OTEL_SERVICE_VERSION'),
+      this.envService.get('OTEL_SERVICE_NAME'),
+      this.envService.get('OTEL_SERVICE_VERSION'),
     )
 
     this.context = opentelemetry.context
@@ -62,10 +64,19 @@ export class PostEventController {
         const startTime = Date.now()
 
         try {
-          this.logger.info(JSON.stringify(payload))
+          await this.rabbitMQService.sendToAuditQueue(payload)
 
           span.setAttribute('event', JSON.stringify(payload))
           span.setStatus({ code: api.SpanStatusCode.OK })
+        } catch (error) {
+          span.setStatus({
+            code: api.SpanStatusCode.ERROR,
+            message: String(error),
+          })
+
+          this.logger.error(`Erro ao processar evento: ${error}`)
+
+          throw error
         } finally {
           const endTime = Date.now()
 
