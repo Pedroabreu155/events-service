@@ -23,8 +23,16 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   async onModuleInit() {
-    const url = this.envService.get('RABBITMQ_URL')
-    this.connection = await amqp.connect(url)
+    const connectionOptions = {
+      protocol: 'amqp',
+      hostname: this.envService.get('RABBITMQ_HOST'),
+      port: parseInt(this.envService.get('RABBITMQ_PORT') ?? '5672'),
+      username: this.envService.get('RABBITMQ_USER'),
+      password: this.envService.get('RABBITMQ_PASS'),
+      vhost: '/',
+    }
+
+    this.connection = await amqp.connect(connectionOptions)
     this.channel = await this.connection.createChannel()
 
     this.channel.on('return', (msg) => {
