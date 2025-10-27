@@ -13,6 +13,7 @@ export const envSchema = z.object({
   RABBITMQ_PORT: z.string(),
   RABBITMQ_USER: z.string(),
   RABBITMQ_PASS: z.string(),
+  RABBITMQ_VHOST: z.string(),
   OTEL_SERVICE_NAME: z.string({
     error: 'Variável de ambiente OTEL_SERVICE_NAME é obrigatória',
   }),

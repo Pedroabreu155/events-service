@@ -29,7 +29,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       port: parseInt(this.envService.get('RABBITMQ_PORT') ?? '5672'),
       username: this.envService.get('RABBITMQ_USER'),
       password: this.envService.get('RABBITMQ_PASS'),
-      vhost: '/',
+      vhost: this.envService.get('RABBITMQ_VHOST'),
     }
 
     this.connection = await amqp.connect(connectionOptions)
