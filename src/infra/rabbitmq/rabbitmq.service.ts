@@ -1,10 +1,11 @@
+/* eslint-disable promise/param-names */
 import {
   Injectable,
   OnModuleInit,
   OnModuleDestroy,
   ServiceUnavailableException,
 } from '@nestjs/common'
-import amqp, { Connection, Channel } from 'amqplib'
+import amqp, { Connection, Channel, ConsumeMessage } from 'amqplib'
 
 import { EnvService } from '@/env/env.service'
 import { LoggerService } from '@/logger/logger.service'
@@ -14,6 +15,7 @@ import { setupRabbitMQ } from './setup' // o setup que você já criou
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private connection!: Connection
   private channel!: Channel
+  private channelReady = false
 
   private readonly mainExchange = 'trouw_ms_audit_service_exchange'
 
@@ -47,13 +49,14 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       mainExchange: this.envService.get('RABBITMQ_MAIN_EXCHANGE'),
       mainQueue: this.envService.get('RABBITMQ_MAIN_QUEUE'),
     })
+
+    this.channelReady = true
     this.logger.info('✅ RabbitMQ connected and queues configured')
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async sendToAuditQueue(message: any) {
     try {
-      console.log('enviando')
       const payload = Buffer.from(JSON.stringify(message))
 
       await this.channel.publish(
@@ -71,6 +74,38 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       this.logger.error(err)
       throw new ServiceUnavailableException('RabbitMQ unavailable')
     }
+  }
+
+  private async waitForChannel() {
+    let retries = 0
+    while (!this.channelReady && retries < 20) {
+      await new Promise((r) => setTimeout(r, 250))
+      retries++
+    }
+    if (!this.channelReady) {
+      throw new ServiceUnavailableException('RabbitMQ channel not initialized')
+    }
+  }
+
+  async consume(
+    queue: string,
+    onMessage: (msg: ConsumeMessage) => Promise<void>,
+  ) {
+    await this.waitForChannel()
+
+    await this.channel.consume(queue, async (msg) => {
+      if (!msg) return
+
+      try {
+        await onMessage(msg)
+        this.channel.ack(msg)
+      } catch (error) {
+        this.logger.error(`❌ Erro ao processar mensagem: ${error}`)
+        this.channel.nack(msg, false, false)
+      }
+    })
+
+    this.logger.info(`📥 Consumindo mensagens da fila: ${queue}`)
   }
 
   async onModuleDestroy() {

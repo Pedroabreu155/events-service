@@ -34,12 +34,12 @@ model EventoAuditoria {
 }
 
 enum Criticidade {
-  ALTA
-  MEDIA
-  BAIXA
+  HIGH
+  MEDIUM
+  LOW
 }
 
 enum Resultado {
-  SUCESSO
-  FALHA
+  SUCCESS
+  FAILURE
 }

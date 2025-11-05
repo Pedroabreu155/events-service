@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
-// import { PrismaService } from '@/v1/prisma/prisma.service'
+import { PrismaService } from '@/v1/prisma/prisma.service'
 import { envSchema } from '@/env/env'
 import { EnvModule } from '@/env/env.module'
 import { EventsModule } from '@/v1/events/events.module'
@@ -31,8 +31,7 @@ import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
     OpenTelemetryModule,
     EventsModule,
   ],
-  // providers: [PrismaService],
-  providers: [RabbitMQService],
+  providers: [PrismaService, RabbitMQService],
   controllers: [AppController],
 })
 export class AppModule implements NestModule {
