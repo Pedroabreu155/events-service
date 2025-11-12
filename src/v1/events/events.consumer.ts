@@ -1,16 +1,15 @@
 // src/infra/rabbitmq/consumers/audit.consumer.ts
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { LoggerService } from '@/logger/logger.service'
 import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
 import { PrismaService } from '@/v1/prisma/prisma.service'
 import { EnvService } from '@/env/env.service'
 import { EventPayload } from '@/v1/interfaces/types'
+import { Criticidade, Resultado } from '@/v1/interfaces/enums'
 
 @Injectable()
 export class EventsConsumer implements OnModuleInit {
   constructor(
     private readonly rabbitmq: RabbitMQService,
-    private readonly logger: LoggerService,
     private readonly prisma: PrismaService,
     private readonly env: EnvService,
   ) {}
@@ -27,19 +26,19 @@ export class EventsConsumer implements OnModuleInit {
 
     await this.prisma.eventoAuditoria.create({
       data: {
-        eaud_timestamp: new Date(payload.timestamp),
-        eaud_user_pess_oras_codigo: payload.userId,
-        eaud_client_pess_oras_codigo: payload.clientId,
-        eaud_tipo_evento: payload.eventType,
-        eaud_ip_origem: payload.sourceIp,
-        eaud_criticidade: payload.criticality,
-        eaud_resultado: payload.result,
-        eaud_id_correlacao: payload.correlationId,
-        eaud_id_entidade: payload.entityId,
-        eaud_detalhes_json: payload.details,
-        eaud_data_cadastro: new Date(),
-        eaud_usuario_adicionou: 'trouw-ms-audit-service',
-        eaud_usuario_alterou: 'trouw-ms-audit-service',
+        ts_data_ocorreu: new Date(payload.timestamp),
+        id_usuario: payload.userId,
+        id_cliente: payload.clientId,
+        tipo_evento: payload.eventType,
+        ip_origem: payload.sourceIp,
+        st_criticidade: Criticidade[payload.criticality],
+        st_resultado: Resultado[payload.result],
+        id_correlacao: payload.correlationId,
+        id_entidade: payload.entityId,
+        detalhes_json: payload.details,
+        ts_data_cadastro: new Date(),
+        usuario_adicionou: 'trouw-ms-audit-service',
+        usuario_alterou: 'trouw-ms-audit-service',
       },
     })
   }
