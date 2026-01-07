@@ -5,6 +5,7 @@ import {
   OnModuleDestroy,
   ServiceUnavailableException,
 } from '@nestjs/common'
+
 import amqp, { Connection, Channel, ConsumeMessage } from 'amqplib'
 
 import { EnvService } from '@/env/env.service'
@@ -106,6 +107,64 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
     })
 
     this.logger.info(`📥 Consumindo mensagens da fila: ${queue}`)
+  }
+
+  async consumeDlq(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onMessage: (msg: ConsumeMessage, failContext: any) => Promise<void>,
+  ) {
+    await this.waitForChannel()
+    const dlqQueue = this.envService.get('RABBITMQ_DLQ_QUEUE')
+
+    if (!dlqQueue) {
+      this.logger.warn(
+        '⚠️ DLQ Queue name not found in env. DLQ Consumer skipped.',
+      )
+      return
+    }
+
+    await this.channel.consume(dlqQueue, async (msg) => {
+      if (!msg) return
+
+      try {
+        // Extrair metadados de erro (x-death headers)
+        const failContext = this.parseXDeathHeader(msg)
+
+        await onMessage(msg, failContext)
+
+        // Sempre ACK na DLQ para evitar travar a fila com mensagens impossíveis de processar
+        this.channel.ack(msg)
+      } catch (error) {
+        // Erro CRÍTICO: Falhamos até em processar o erro.
+        // Logamos e damos ACK para limpar a DLQ.
+        this.logger.error(
+          `🚨 CRITICAL: Falha ao processar mensagem da DLQ: ${error}`,
+        )
+        this.channel.ack(msg)
+      }
+    })
+
+    this.logger.info(`💀 Consumindo DLQ: ${dlqQueue}`)
+  }
+
+  private parseXDeathHeader(msg: ConsumeMessage) {
+    const headers = msg.properties.headers || {}
+    const xDeath = headers['x-death']
+
+    if (!xDeath || !Array.isArray(xDeath) || xDeath.length === 0) {
+      return { reason: 'unknown', originalQueue: 'unknown', count: 0 }
+    }
+
+    const recentFailure = xDeath[0]
+
+    return {
+      reason: recentFailure.reason,
+      originalQueue: recentFailure.queue,
+      time: recentFailure.time,
+      count: recentFailure.count,
+      exchange: recentFailure.exchange,
+      routingKeys: recentFailure['routing-keys'],
+    }
   }
 
   async onModuleDestroy() {
