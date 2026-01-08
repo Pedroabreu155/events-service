@@ -15,22 +15,22 @@ datasource db {
 }
 
 model EventoAuditoria {
-  eaud_codigo                  Int         @id @default(autoincrement())
-  eaud_timestamp               DateTime    @map("eaud_timestamp") // ISO 8601
-  eaud_user_pess_oras_codigo   Int         @map("eaud_user_pess_oras_codigo")
-  eaud_client_pess_oras_codigo Int         @map("eaud_client_pess_oras_codigo")
-  eaud_tipo_evento             String      @map("eaud_tipo_evento")
-  eaud_ip_origem               String      @map("eaud_ip_origem")
-  eaud_criticidade             Criticidade @map("eaud_criticidade")
-  eaud_resultado               Resultado   @map("eaud_resultado")
-  eaud_id_correlacao           String?     @map("eaud_id_correlacao")
-  eaud_id_entidade             String?     @map("eaud_id_entidade")
-  eaud_detalhes_json           Json?       @map("eaud_detalhes_json")
-  eaud_data_cadastro           DateTime    @map("eaud_data_cadastro")
-  eaud_usuario_adicionou       String      @map("eaud_usuario_adicionou")
-  eaud_usuario_alterou         String      @map("eaud_usuario_alterou")
+  id_evento         Int         @id @default(autoincrement())
+  ts_data_ocorreu   DateTime    @map("ts_data_ocorreu")
+  id_usuario        Int         @map("id_usuario")
+  id_cliente        Int         @map("id_cliente")
+  tipo_evento       String      @map("tipo_evento")
+  ip_origem         String      @map("ip_origem")
+  st_criticidade    Criticidade @map("st_criticidade")
+  st_resultado      Resultado   @map("st_resultado")
+  id_correlacao     String?     @map("id_correlacao")
+  id_entidade       String?     @map("id_entidade")
+  detalhes_json     Json?       @map("detalhes_json")
+  ts_data_cadastro  DateTime    @map("ts_data_cadastro")
+  usuario_adicionou String      @map("usuario_adicionou")
+  usuario_alterou   String      @map("usuario_alterou")
 
-  @@map("eaud_evento_auditoria") // nome da tabela no banco
+  @@map("tb_eventos_auditoria")
 }
 
 enum Criticidade {
