@@ -5,7 +5,7 @@ import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
 import { PrismaService } from '@/v1/prisma/prisma.service'
 import { EnvService } from '@/env/env.service'
 import { EventPayload } from '@/v1/interfaces/types'
-import { Criticidade, Resultado } from '@/v1/interfaces/enums'
+import { Severity, Result } from '@/v1/interfaces/enums'
 import { LoggerService } from '@/logger/logger.service'
 
 @Injectable()
@@ -28,23 +28,29 @@ export class EventsConsumer implements OnModuleInit {
   private async handleMessage(msg: any) {
     const payload = JSON.parse(msg.content.toString()) as EventPayload
 
-    await this.prisma.eventoAuditoria.create({
-      data: {
-        ts_data_ocorreu: new Date(payload.timestamp),
-        id_usuario: payload.userId,
-        id_cliente: payload.clientId,
-        tipo_evento: payload.eventType,
-        ip_origem: payload.sourceIp,
-        st_criticidade: Criticidade[payload.criticality],
-        st_resultado: Resultado[payload.result],
-        id_correlacao: payload.correlationId,
-        id_entidade: payload.entityId,
-        detalhes_json: payload.details,
-        ts_data_cadastro: new Date(),
-        usuario_adicionou: 'trouw-ms-audit-service',
-        usuario_alterou: 'trouw-ms-audit-service',
-      },
-    })
+    try {
+      await this.prisma.eventoAuditoria.create({
+        data: {
+          ts_transaction: new Date(payload.timestamp),
+          id_user: payload.userId,
+          id_company: payload.clientId,
+          tp_event: payload.eventType,
+          ip_host: payload.sourceIp,
+          id_severity: Severity[payload.criticality],
+          id_result: Result[payload.result],
+          id_correlation: payload.correlationId,
+          id_entity: payload.entityId,
+          js_detail: payload.details,
+          ts_created_at: new Date(),
+          created_by: 'trouw-ms-audit-service',
+          updated_by: 'trouw-ms-audit-service',
+        },
+      })
+    } catch (dbError) {
+      this.logger.error(
+        `🚨 Falha crítica ao salvar evento no banco: ${dbError}`,
+      )
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

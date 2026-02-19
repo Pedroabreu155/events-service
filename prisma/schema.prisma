@@ -15,31 +15,34 @@ datasource db {
 }
 
 model EventoAuditoria {
-  id_evento         Int         @id @default(autoincrement())
-  ts_data_ocorreu   DateTime    @map("ts_data_ocorreu")
-  id_usuario        Int         @map("id_usuario")
-  id_cliente        Int         @map("id_cliente")
-  tipo_evento       String      @map("tipo_evento")
-  ip_origem         String      @map("ip_origem")
-  st_criticidade    Criticidade @map("st_criticidade")
-  st_resultado      Resultado   @map("st_resultado")
-  id_correlacao     String?     @map("id_correlacao")
-  id_entidade       String?     @map("id_entidade")
-  detalhes_json     Json?       @map("detalhes_json")
-  ts_data_cadastro  DateTime    @map("ts_data_cadastro")
-  usuario_adicionou String      @map("usuario_adicionou")
-  usuario_alterou   String      @map("usuario_alterou")
+  id_event       Int      @id @default(autoincrement())
+  ts_transaction DateTime @map("ts_transaction")
+  id_user        Int      @map("id_user")
+  id_company     Int      @map("id_company")
+  tp_event       String   @map("tp_event")
+  ip_host        String   @map("ip_host")
+  id_severity    Severity @map("id_severity")
+  id_result      Result   @map("id_result")
+  id_correlation String?  @map("id_correlation")
+  id_entity      String?  @map("id_entity")
+  js_detail      Json?    @map("js_detail")
+  ts_created_at  DateTime @map("ts_created_at")
+  created_by     String   @map("id_created_by")
+  updated_by     String   @map("id_updated_by")
 
+  @@index([id_company, ts_transaction])
+  @@index([id_user, ts_transaction])
+  @@index([tp_event, ts_transaction])
   @@map("tb_eventos_auditoria")
 }
 
-enum Criticidade {
-  ALTA
-  MEDIA
-  BAIXA
+enum Severity {
+  HIGH
+  MEDIUM
+  LOW
 }
 
-enum Resultado {
-  SUCESSO
-  FALHA
+enum Result {
+  SUCCESS
+  FAILURE
 }

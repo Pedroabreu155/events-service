@@ -1,11 +1,10 @@
-export enum Criticidade {
-  HIGH = 'ALTA',
-  MEDIUM = 'MEDIA',
-  LOW = 'BAIXA'
+export enum Severity {
+  HIGH = "HIGH",
+  MEDIUM = "MEDIUM",
+  LOW = "LOW",
 }
 
-export enum Resultado {
-  SUCCESS = 'SUCESSO',
-  FAILURE = 'FALHA'
+export enum Result {
+  SUCCESS = "SUCCESS",
+  FAILURE = "FAILURE",
 }
-
