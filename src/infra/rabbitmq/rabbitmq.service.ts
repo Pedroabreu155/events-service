@@ -19,6 +19,7 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
   private channelReady = false
 
   private readonly mainExchange = 'trouw_ms_audit_service_exchange'
+  private readonly dlxExchange = '"trouw_ms_audit_service_dlx_exchange"'
 
   constructor(
     private readonly envService: EnvService,
@@ -63,6 +64,28 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       await this.channel.publish(
         this.mainExchange,
         'trouw_ms_audit_service_queue',
+        payload,
+        {
+          persistent: true,
+          mandatory: true,
+        },
+      )
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      this.logger.error(err)
+      throw new ServiceUnavailableException('RabbitMQ unavailable')
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async sendToDLQQueue(message: any) {
+    try {
+      const payload = Buffer.from(JSON.stringify(message))
+
+      await this.channel.publish(
+        this.dlxExchange,
+        'trouw_ms_audit_service_dlq',
         payload,
         {
           persistent: true,

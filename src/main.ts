@@ -5,6 +5,7 @@ import { EnvService } from '@/env/env.service'
 import { AllExceptionsFilter } from '@/filters/exceptions'
 import { AppModule } from '@/app.module'
 import { LoggerService } from '@/logger/logger.service'
+import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,9 +13,10 @@ async function bootstrap() {
   })
 
   const logger = app.get(LoggerService)
+  const rabbitMQService = app.get(RabbitMQService)
   app.useLogger(logger)
 
-  app.useGlobalFilters(new AllExceptionsFilter(logger))
+  app.useGlobalFilters(new AllExceptionsFilter(logger, rabbitMQService))
 
   const config = new DocumentBuilder()
     .setTitle('Audit Service API')
