@@ -1,11 +1,10 @@
-/* eslint-disable promise/param-names */
 import { Injectable, OnModuleInit, OnModuleDestroy, ServiceUnavailableException } from '@nestjs/common'
 
 import amqp, { Connection, Channel, ConsumeMessage } from 'amqplib'
 
 import { EnvService } from '@/env/env.service'
 import { LoggerService } from '@/logger/logger.service'
-import { setupRabbitMQ } from './setup' // o setup que você já criou
+import { setupRabbitMQ } from './setup'
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
@@ -66,7 +65,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 		}
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async sendToDLQQueue(message: any) {
 		try {
 			const payload = Buffer.from(JSON.stringify(message))
@@ -75,8 +73,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 				persistent: true,
 				mandatory: true,
 			})
-
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			this.logger.error(err)
 			throw new ServiceUnavailableException('RabbitMQ unavailable')

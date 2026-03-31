@@ -17,7 +17,7 @@ import { ApiBody, ApiTags } from '@nestjs/swagger'
 import { EventPayloadDto } from '@/v1/interfaces/dto.docs'
 import { LoggerService } from '@/logger/logger.service'
 import { EnvService } from '@/env/env.service'
-import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
+import { CreateAuditEventUseCase } from '@/application/use-cases/create-audit-event/create-audit-event.use-case'
 
 @UseGuards(ApiKeyGuard)
 @ApiTags('audit')
@@ -30,7 +30,7 @@ export class PostEventController {
   constructor(
     private readonly logger: LoggerService,
     private readonly envService: EnvService,
-    private readonly rabbitMQService: RabbitMQService,
+    private readonly createAuditEventUseCase: CreateAuditEventUseCase,
   ) {
     this.tracer = opentelemetry.trace.getTracer(
       this.envService.get('OTEL_SERVICE_NAME'),
@@ -64,7 +64,7 @@ export class PostEventController {
         const startTime = Date.now()
 
         try {
-          await this.rabbitMQService.sendToAuditQueue(payload)
+          await this.createAuditEventUseCase.execute(payload)
 
           span.setAttribute('event', JSON.stringify(payload))
           span.setStatus({ code: api.SpanStatusCode.OK })

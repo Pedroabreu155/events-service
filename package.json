@@ -1,5 +1,5 @@
 {
-  "name": "trouw-ms-audit-service",
+  "name": "events-service",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -12,7 +12,7 @@
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:prod": "node dist/src/main --name trouw-ms-audit-service-001.service",
+    "start:prod": "node dist/src/main",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",

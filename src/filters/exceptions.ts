@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   BadRequestException,
+  Inject,
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import {
@@ -14,13 +15,17 @@ import {
 } from '@opentelemetry/api'
 
 import { LoggerService } from '@/logger/logger.service'
-import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
+import {
+  INVALID_EVENT_NOTIFIER_PORT,
+  type InvalidEventNotifierPort,
+} from '@/domain/audit-event/ports/invalid-event-notifier.port'
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   constructor(
     private readonly logger: LoggerService,
-    private readonly rabbitMQService: RabbitMQService,
+    @Inject(INVALID_EVENT_NOTIFIER_PORT)
+    private readonly invalidEventNotifier: InvalidEventNotifierPort,
   ) {}
 
   async catch(exception: unknown, host: ArgumentsHost) {
@@ -64,7 +69,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
           `[traceId:${traceId}] Payload de auditoria inválido detectado. Enviando para DLQ...`,
         )
 
-        await this.rabbitMQService.sendToDLQQueue({
+        await this.invalidEventNotifier.notifyInvalidEvent({
           originalPayload: invalidPayload,
           validationErrors: message,
           failedAt: new Date().toISOString(),
