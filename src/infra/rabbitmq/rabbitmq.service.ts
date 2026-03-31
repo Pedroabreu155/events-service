@@ -48,7 +48,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 		this.logger.info('✅ RabbitMQ connected and queues configured')
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async sendToAuditQueue(message: any) {
 		try {
 			const payload = Buffer.from(JSON.stringify(message))
@@ -58,7 +57,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 				mandatory: true,
 			})
 
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			this.logger.error(err)
 			throw new ServiceUnavailableException('RabbitMQ unavailable')
@@ -109,7 +107,6 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
 	}
 
 	async consumeDlq(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		onMessage: (msg: ConsumeMessage, failContext: any) => Promise<void>
 	) {
 		await this.waitForChannel()

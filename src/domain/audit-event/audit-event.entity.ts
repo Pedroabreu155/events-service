@@ -10,7 +10,6 @@ export interface CreateAuditEventProps {
   result: Result | keyof typeof Result
   correlationId?: string
   entityId?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   details?: Record<string, any>
 }
 
@@ -24,7 +23,6 @@ export class AuditEvent {
   public readonly result: Result
   public readonly correlationId?: string
   public readonly entityId?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public readonly details?: Record<string, any>
   public readonly createdAt: Date
 

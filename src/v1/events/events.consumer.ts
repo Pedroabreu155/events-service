@@ -35,7 +35,6 @@ export class EventsConsumer implements OnModuleInit {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async handleDlqMessage(msg: ConsumeMessage, failContext: any) {
     const content = msg.content.toString()
 
