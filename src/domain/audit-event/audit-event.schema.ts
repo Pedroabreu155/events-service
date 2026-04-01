@@ -14,3 +14,15 @@ export const eventPayloadSchema = z.object({
   entityId: z.string().optional(),
   details: z.record(z.string(), z.any()).optional(),
 })
+
+export const listAuditEventsSchema = z.object({
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  result: z.enum(['SUCCESS', 'FAILURE']).optional(),
+  criticality: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
+  clientId: z.coerce.number().optional(),
+  userId: z.coerce.number().optional(),
+  eventType: z.string().optional(),
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+})

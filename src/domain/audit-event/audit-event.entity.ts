@@ -11,6 +11,7 @@ export interface CreateAuditEventProps {
   correlationId?: string
   entityId?: string
   details?: Record<string, any>
+  createdAt?: Date
 }
 
 export class AuditEvent {
@@ -62,7 +63,7 @@ export class AuditEvent {
       timestamp: new Date(props.timestamp),
       criticality: criticalityEnum,
       result: resultEnum,
-      createdAt: new Date(),
+      createdAt: props.createdAt || new Date(),
     })
   }
 }
