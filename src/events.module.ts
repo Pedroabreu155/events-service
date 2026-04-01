@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 
-import { PostEventController } from './post-event.controller'
+import { PostEventController } from './infra/http/post-event.controller'
 import { EnvModule } from '@/env/env.module'
 import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
-import { EventsConsumer } from './events.consumer'
+import { EventsConsumer } from './infra/rabbitmq/events.consumer'
 import { PrismaService } from '@/infra/database/prisma/prisma.service'
 import { CreateAuditEventUseCase } from '@/application/use-cases/create-audit-event/create-audit-event.use-case'
 import { PersistAuditEventUseCase } from '@/application/use-cases/persist-audit-event/persist-audit-event.use-case'

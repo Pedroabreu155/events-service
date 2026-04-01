@@ -3,7 +3,7 @@ import { ConsumeMessage } from 'amqplib'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { RabbitMQService } from '@/infra/rabbitmq/rabbitmq.service'
 import { EnvService } from '@/env/env.service'
-import { EventPayload } from '@/v1/interfaces/types'
+import { EventPayload } from '@/domain/audit-event/audit-event.types'
 import { LoggerService } from '@/logger/logger.service'
 import { PersistAuditEventUseCase } from '@/application/use-cases/persist-audit-event/persist-audit-event.use-case'
 
