@@ -5,7 +5,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common'
-import { ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
 import { listAuditEventsSchema } from '@/domain/audit-event/audit-event.schema'
 import { type ListAuditEventsDto } from '@/application/use-cases/list-audit-events/list-audit-events.dto'
@@ -13,6 +13,7 @@ import { ListAuditEventsUseCase } from '@/application/use-cases/list-audit-event
 import { ApiKeyGuard } from './guards/api-key.guard'
 
 @UseGuards(ApiKeyGuard)
+@ApiSecurity('x-api-key')
 @ApiTags('audit')
 @Controller('/v1/audit/events')
 export class ListEventsController {

@@ -13,13 +13,14 @@ import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
 import { eventPayloadSchema } from '@/domain/audit-event/audit-event.schema'
 import { type EventPayload } from '@/domain/audit-event/audit-event.types'
 import { ApiKeyGuard } from './guards/api-key.guard'
-import { ApiBody, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiSecurity, ApiTags } from '@nestjs/swagger'
 import { EventPayloadDto } from './dtos/post-event.dto'
 import { LoggerService } from '@/logger/logger.service'
 import { EnvService } from '@/env/env.service'
 import { CreateAuditEventUseCase } from '@/application/use-cases/create-audit-event/create-audit-event.use-case'
 
 @UseGuards(ApiKeyGuard)
+@ApiSecurity('x-api-key')
 @ApiTags('audit')
 @Controller('/v1/audit/events')
 export class PostEventController {
