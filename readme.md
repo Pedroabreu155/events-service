@@ -1,6 +1,6 @@
-# Audit Service
+# Events Service
 
-Este é o **Audit Service**, um serviço para registro de eventos e auditorias, desenvolvido com NestJS, Prisma e instrumentado com OpenTelemetry.
+Este é o **Events Service**, um serviço para registro de eventos e auditorias, desenvolvido com NestJS, Prisma e instrumentado com OpenTelemetry.
 
 ## Pré-requisitos
 
@@ -14,41 +14,41 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
 
 1. Clone o repositório:
 
-   ```git clone https://github.com/Trouw-Tecnologia/trouw-ms-audit-service```
+   `git clone https://github.com/Pedroabreu155/events-service`
 
-   ```cd audit-service```
+   `cd events-service`
 
 2. Instale as dependências:
 
-   ```npm install```
+   `npm install`
 
 3. Configure as variáveis de ambiente:
 
-   Crie um arquivo `.env` na raiz do projeto com base no ``.env.example`` do repositório
+   Crie um arquivo `.env` na raiz do projeto com base no `.env.example` do repositório
 
 ## Executando o projeto em ambiente de desenvolvimento
 
 1. Suba os serviços necessários (PostgreSQL, RabbitMQ, Redis, Jaeger, Prometheus e OpenTelemetry Collector) usando o Docker Compose:
 
-   ``docker-compose up -d``
+   `docker-compose up -d`
 
 2. Gere o cliente Prisma:
 
-   ``npx prisma generate``
+   `npx prisma generate`
 
 3. Execute as migrações do banco de dados:
 
-   ``npx prisma migrate dev``
+   `npx prisma migrate dev`
 
 4. Inicie o servidor em modo de desenvolvimento:
 
-   ``npm run start:dev``
+   `npm run start:dev`
 
 5. Acesse a documentação da API no Swagger em: http://localhost:3333/docs
 
 6. Acesse os traces da execução na UI do Jagger em: http://localhost:16686
 
-5. Acesse as métricas na UI do Prometheus em: http://localhost:9090
+7. Acesse as métricas na UI do Prometheus em: http://localhost:9090
 
 ## Scripts disponíveis
 
@@ -69,13 +69,13 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
 
 Para rodar os testes unitários:
 
-   ``npm run test``
+`npm run test`
 
 ### Testes de Integração (E2E)
 
 Para rodar os testes de integração:
 
-   ``npm run test:e2e``
+`npm run test:e2e`
 
 ## Estrutura do Projeto
 
@@ -84,9 +84,9 @@ Para rodar os testes de integração:
   - **filters/**: Filtros de exceções globais.
   - **infra/**: Camadas externas ao contexto do app.
     - **opentelemetry/**: Módulo global que instrumenta a aplicação para ter observabilidade
-  - **logger/**: Módulo global do logger da aplicação.  
+  - **logger/**: Módulo global do logger da aplicação.
   - **middlewares/**: Middlewares globais.
-  - **pipes/**: Pipes de validação.  
+  - **pipes/**: Pipes de validação.
   - **v1/**: Implementação da versão 1 da API.
     - **auth/**: Guardas de autenticação.
     - **events/**: Controladores e módulos relacionados a eventos.
