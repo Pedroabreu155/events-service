@@ -4,17 +4,22 @@
 
 ---
 
-## 1. Visão Geral
+## 1. Visão Geral e Contexto de Negócio
 
-O **Audit Service** é um microserviço NestJS responsável por:
+O **Audit Service** (ou Serviço de Eventos) serve como um sistema centralizado de auditoria para a plataforma, permitindo armazenar eventos emitidos por outros serviços ou pelo _client-side_ para visualização e acompanhamento posterior.
 
-1. **Receber** eventos de auditoria via HTTP (JSON) protegidos por API Key
-2. **Validar** o payload com Zod
-3. **Publicar** o evento na fila RabbitMQ (retorno rápido ao client)
-4. **Consumir** a fila e **persistir** o evento no PostgreSQL via Prisma
-5. **Tratar erros** — payloads inválidos são enviados para uma Dead Letter Queue (DLQ)
+> **💡 Inspiração:** O design da solução teve como forte base a simplicidade de uso de ferramentas consolidadas de mercado, como o **Mixpanel**.
 
-O fluxo completo está **implementado e funcional** nesta branch.
+### 1.1 Fluxo de Operação Otimizado
+Para garantir alta disponibilidade e não travar o _client-side_ esperando operações custosas no banco de dados, o fluxo foi desenhado de forma assíncrona:
+
+1. **Recepção:** O serviço recebe o payload do evento via requisição HTTP (JSON), protegida por API Key.
+2. **Validação:** Validação estrita do payload com Zod.
+3. **Resposta Rápida (Fast Response):** O evento é publicado numa fila RabbitMQ imediatamente, garantindo uma resposta rápida (`201 Created`) ao client.
+4. **Persistência Assíncrona:** Um _consumer_ escuta a fila em background e grava o evento consolidado no banco de dados PostgreSQL via Prisma.
+5. **Tratamento de Falhas:** Erros de validação ou de processamento desviam o fluxo para uma _Dead Letter Queue_ (DLQ).
+
+O fluxo completo está implementado, funcional e em transição para a Arquitetura Hexagonal.
 
 ---
 
