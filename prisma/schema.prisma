@@ -15,31 +15,34 @@ datasource db {
 }
 
 model EventoAuditoria {
-  eaud_codigo                  Int         @id @default(autoincrement())
-  eaud_timestamp               DateTime    @map("eaud_timestamp") // ISO 8601
-  eaud_user_pess_oras_codigo   Int         @map("eaud_user_pess_oras_codigo")
-  eaud_client_pess_oras_codigo Int         @map("eaud_client_pess_oras_codigo")
-  eaud_tipo_evento             String      @map("eaud_tipo_evento")
-  eaud_ip_origem               String      @map("eaud_ip_origem")
-  eaud_criticidade             Criticidade @map("eaud_criticidade")
-  eaud_resultado               Resultado   @map("eaud_resultado")
-  eaud_id_correlacao           String?     @map("eaud_id_correlacao")
-  eaud_id_entidade             String?     @map("eaud_id_entidade")
-  eaud_detalhes_json           Json?       @map("eaud_detalhes_json")
-  eaud_data_cadastro           DateTime    @map("eaud_data_cadastro")
-  eaud_usuario_adicionou       String      @map("eaud_usuario_adicionou")
-  eaud_usuario_alterou         String      @map("eaud_usuario_alterou")
+  id_event       Int      @id @default(autoincrement())
+  ts_transaction DateTime @map("ts_transaction")
+  id_user        Int      @map("id_user")
+  id_company     Int      @map("id_company")
+  tp_event       String   @map("tp_event")
+  ip_host        String   @map("ip_host")
+  id_severity    Severity @map("id_severity")
+  id_result      Result   @map("id_result")
+  id_correlation String?  @map("id_correlation")
+  id_entity      String?  @map("id_entity")
+  js_detail      Json?    @map("js_detail")
+  ts_created_at  DateTime @map("ts_created_at")
+  created_by     String   @map("id_created_by")
+  updated_by     String   @map("id_updated_by")
 
-  @@map("eaud_evento_auditoria") // nome da tabela no banco
+  @@index([id_company, ts_transaction])
+  @@index([id_user, ts_transaction])
+  @@index([tp_event, ts_transaction])
+  @@map("tb_eventos_auditoria")
 }
 
-enum Criticidade {
-  ALTA
-  MEDIA
-  BAIXA
+enum Severity {
+  HIGH
+  MEDIUM
+  LOW
 }
 
-enum Resultado {
-  SUCESSO
-  FALHA
+enum Result {
+  SUCCESS
+  FAILURE
 }

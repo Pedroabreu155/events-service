@@ -10,13 +10,14 @@ import {
 import opentelemetry, * as api from '@opentelemetry/api'
 
 import { ZodValidationPipe } from '@/pipes/zod-validation-pipe'
-import { eventPayloadSchema } from '@/v1/interfaces/schemas'
-import { type EventPayload } from '@/v1/interfaces/types'
-import { ApiKeyGuard } from '@/v1/auth/api-key.guard'
+import { eventPayloadSchema } from '@/domain/audit-event/audit-event.schema'
+import { type EventPayload } from '@/domain/audit-event/audit-event.types'
+import { ApiKeyGuard } from './guards/api-key.guard'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
-import { EventPayloadDto } from '@/v1/interfaces/dto.docs'
+import { EventPayloadDto } from './dtos/post-event.dto'
 import { LoggerService } from '@/logger/logger.service'
 import { EnvService } from '@/env/env.service'
+import { CreateAuditEventUseCase } from '@/application/use-cases/create-audit-event/create-audit-event.use-case'
 
 @UseGuards(ApiKeyGuard)
 @ApiTags('audit')
@@ -29,15 +30,16 @@ export class PostEventController {
   constructor(
     private readonly logger: LoggerService,
     private readonly envService: EnvService,
+    private readonly createAuditEventUseCase: CreateAuditEventUseCase,
   ) {
     this.tracer = opentelemetry.trace.getTracer(
-      envService.get('OTEL_SERVICE_NAME'),
-      envService.get('OTEL_SERVICE_VERSION'),
+      this.envService.get('OTEL_SERVICE_NAME'),
+      this.envService.get('OTEL_SERVICE_VERSION'),
     )
 
     this.meter = opentelemetry.metrics.getMeter(
-      envService.get('OTEL_SERVICE_NAME'),
-      envService.get('OTEL_SERVICE_VERSION'),
+      this.envService.get('OTEL_SERVICE_NAME'),
+      this.envService.get('OTEL_SERVICE_VERSION'),
     )
 
     this.context = opentelemetry.context
@@ -62,10 +64,19 @@ export class PostEventController {
         const startTime = Date.now()
 
         try {
-          this.logger.info(JSON.stringify(payload))
+          await this.createAuditEventUseCase.execute(payload)
 
           span.setAttribute('event', JSON.stringify(payload))
           span.setStatus({ code: api.SpanStatusCode.OK })
+        } catch (error) {
+          span.setStatus({
+            code: api.SpanStatusCode.ERROR,
+            message: String(error),
+          })
+
+          this.logger.error(`Erro ao processar evento: ${error}`)
+
+          throw error
         } finally {
           const endTime = Date.now()
 

@@ -4,6 +4,8 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  BadRequestException,
+  Inject,
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import {
@@ -13,12 +15,20 @@ import {
 } from '@opentelemetry/api'
 
 import { LoggerService } from '@/logger/logger.service'
+import {
+  INVALID_EVENT_NOTIFIER_PORT,
+  type InvalidEventNotifierPort,
+} from '@/domain/audit-event/ports/invalid-event-notifier.port'
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(private readonly logger: LoggerService) {}
+  constructor(
+    private readonly logger: LoggerService,
+    @Inject(INVALID_EVENT_NOTIFIER_PORT)
+    private readonly invalidEventNotifier: InvalidEventNotifierPort,
+  ) {}
 
-  catch(exception: unknown, host: ArgumentsHost) {
+  async catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
@@ -46,6 +56,30 @@ export class AllExceptionsFilter implements ExceptionFilter {
         exception instanceof Error ? exception : new Error(logMessage),
       )
       span.setStatus({ code: SpanStatusCode.ERROR, message: logMessage })
+    }
+
+    if (
+      exception instanceof BadRequestException &&
+      request.url.includes('/v1/audit/events')
+    ) {
+      const invalidPayload = request.body
+
+      try {
+        this.logger.warn(
+          `[traceId:${traceId}] Payload de auditoria inválido detectado. Enviando para DLQ...`,
+        )
+
+        await this.invalidEventNotifier.notifyInvalidEvent({
+          originalPayload: invalidPayload,
+          validationErrors: message,
+          failedAt: new Date().toISOString(),
+          traceId,
+        })
+      } catch (dlqError) {
+        this.logger.error(
+          `[traceId:${traceId}] CRÍTICO: Falha ao tentar enviar mensagem inválida para a DLQ: ${dlqError}`,
+        )
+      }
     }
 
     response.status(status).json(message)

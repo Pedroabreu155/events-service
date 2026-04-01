@@ -29,6 +29,5 @@ export class EventPayloadDto {
   entityId?: string
 
   @ApiProperty({ required: false, type: Object })
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   details?: Record<string, any>
 }
