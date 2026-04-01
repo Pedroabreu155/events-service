@@ -9,154 +9,130 @@ import { EnvService } from '@/env/env.service'
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
-  logger: Logger
-  consoleLogger: winston.Logger
-  fileLogger: winston.Logger
-  level: 'info' | 'error' | 'debug' | 'fatal' | 'warn' = 'info'
+	logger: Logger
+	consoleLogger: winston.Logger
+	fileLogger: winston.Logger
+	level: 'info' | 'error' | 'debug' | 'fatal' | 'warn' = 'info'
 
-  constructor(private envService: EnvService) {
-    this.logger = logs.getLogger(
-      envService.get('OTEL_SERVICE_NAME'),
-      envService.get('OTEL_SERVICE_VERSION'),
-    )
+	constructor(private envService: EnvService) {
+		this.logger = logs.getLogger(envService.get('OTEL_SERVICE_NAME'), envService.get('OTEL_SERVICE_VERSION'))
 
-    this.level = envService.get('LOG_LEVEL') as
-      | 'info'
-      | 'error'
-      | 'debug'
-      | 'fatal'
-      | 'warn'
+		this.level = envService.get('LOG_LEVEL') as 'info' | 'error' | 'debug' | 'fatal' | 'warn'
 
-    const transports = [new winston.transports.Console()]
+		const transports = [new winston.transports.Console()]
 
-    this.consoleLogger = winston.createLogger({
-      level: this.level,
-      format: winston.format.combine(
-        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
-        winston.format((info) => {
-          if (process.env.NODE_ENV !== 'test') {
-            const span = opentelemetry.trace.getActiveSpan()
+		this.consoleLogger = winston.createLogger({
+			level: this.level,
+			format: winston.format.combine(
+				winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+				winston.format(info => {
+					if (process.env.NODE_ENV !== 'test') {
+						const span = opentelemetry.trace.getActiveSpan()
 
-            if (span) {
-              info.spanId = span.spanContext().spanId
-              info.traceId = span.spanContext().traceId
-            }
-          }
+						if (span) {
+							info.spanId = span.spanContext().spanId
+							info.traceId = span.spanContext().traceId
+						}
+					}
 
-          return info
-        })(),
-        winston.format.json(),
-      ),
-      transports,
-    })
+					return info
+				})(),
+				winston.format.json()
+			),
+			transports,
+		})
 
-    this.fileLogger = winston.createLogger({
-      level: this.level,
-      format: winston.format.combine(
-        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
-        winston.format((info) => {
-          const span = opentelemetry.trace.getActiveSpan()
-          if (span) {
-            info.spanId = span.spanContext().spanId
-            info.traceId = span.spanContext().traceId
-          }
+		this.fileLogger = winston.createLogger({
+			level: this.level,
+			format: winston.format.combine(
+				winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+				winston.format(info => {
+					const span = opentelemetry.trace.getActiveSpan()
+					if (span) {
+						info.spanId = span.spanContext().spanId
+						info.traceId = span.spanContext().traceId
+					}
 
-          return info
-        })(),
-        winston.format.json(),
-      ),
-      transports: [
-        new winston.transports.DailyRotateFile({
-          dirname: './logs',
-          filename: '%DATE%-trouw-ms-audit-service.log', // nome do arquivo por dia
-          datePattern: 'DD-MM-YYYY',
-          zippedArchive: true,
-          maxFiles: '15d',
-        }),
-      ],
-    })
-  }
+					return info
+				})(),
+				winston.format.json()
+			),
+			transports: [
+				new winston.transports.DailyRotateFile({
+					dirname: './logs',
+					filename: '%DATE%-events-service.log', // nome do arquivo por dia
+					datePattern: 'DD-MM-YYYY',
+					zippedArchive: true,
+					maxFiles: '15d',
+				}),
+			],
+		})
+	}
 
-  private logMessage(
-    body: string | { req?: Request; res?: Response },
-    severityNumber: SeverityNumber,
-    severityText: string,
-  ) {
-    const message = this.buildMessage(body)
+	private logMessage(body: string | { req?: Request; res?: Response }, severityNumber: SeverityNumber, severityText: string) {
+		const message = this.buildMessage(body)
 
-    this.consoleLogger[severityText.toLowerCase()](message)
-    this.fileLogger[severityText.toLowerCase()](message)
+		this.consoleLogger[severityText.toLowerCase()](message)
+		this.fileLogger[severityText.toLowerCase()](message)
 
-    this.logger.emit({
-      body: message,
-      severityNumber,
-      severityText,
-    })
-  }
+		this.logger.emit({
+			body: message,
+			severityNumber,
+			severityText,
+		})
+	}
 
-  log(message: string) {
-    this.logMessage(message, SeverityNumber.INFO, 'INFO')
-  }
+	log(message: string) {
+		this.logMessage(message, SeverityNumber.INFO, 'INFO')
+	}
 
-  private bodyIsExpressRequest(
-    body: string | Request | Response,
-  ): body is Request {
-    return (body as Request).method !== undefined
-  }
+	private bodyIsExpressRequest(body: string | Request | Response): body is Request {
+		return (body as Request).method !== undefined
+	}
 
-  private bodyIsExpressResponse(
-    body: string | Request | Response,
-  ): body is Response {
-    return (body as Response).statusCode !== undefined
-  }
+	private bodyIsExpressResponse(body: string | Request | Response): body is Response {
+		return (body as Response).statusCode !== undefined
+	}
 
-  private buildMessage(body: string | { req?: Request; res?: Response }) {
-    if (
-      typeof body === 'object' &&
-      body.req &&
-      this.bodyIsExpressRequest(body.req)
-    ) {
-      return `${body.req.method} ${body.req.url}`
-    } else if (
-      typeof body === 'object' &&
-      body.res &&
-      this.bodyIsExpressResponse(body.res)
-    ) {
-      return `${body.res.req.method} ${body.res.req.url} ${body.res.statusCode}`
-    } else if (typeof body === 'string') {
-      return body
-    } else {
-      return ''
-    }
-  }
+	private buildMessage(body: string | { req?: Request; res?: Response }) {
+		if (typeof body === 'object' && body.req && this.bodyIsExpressRequest(body.req)) {
+			return `${body.req.method} ${body.req.url}`
+		} else if (typeof body === 'object' && body.res && this.bodyIsExpressResponse(body.res)) {
+			return `${body.res.req.method} ${body.res.req.url} ${body.res.statusCode}`
+		} else if (typeof body === 'string') {
+			return body
+		} else {
+			return ''
+		}
+	}
 
-  info(body: string | { req?: Request; res?: Response }) {
-    this.logMessage(body, SeverityNumber.INFO, 'INFO')
-  }
+	info(body: string | { req?: Request; res?: Response }) {
+		this.logMessage(body, SeverityNumber.INFO, 'INFO')
+	}
 
-  error(body: string | { req?: Request; res?: Response }) {
-    this.logMessage(body, SeverityNumber.ERROR, 'ERROR')
-  }
+	error(body: string | { req?: Request; res?: Response }) {
+		this.logMessage(body, SeverityNumber.ERROR, 'ERROR')
+	}
 
-  debug(body: string | { req?: Request; res?: Response }) {
-    this.logMessage(body, SeverityNumber.DEBUG, 'DEBUG')
-  }
+	debug(body: string | { req?: Request; res?: Response }) {
+		this.logMessage(body, SeverityNumber.DEBUG, 'DEBUG')
+	}
 
-  fatal(body: string | { req?: Request; res?: Response }) {
-    this.logMessage(body, SeverityNumber.FATAL, 'FATAL')
-  }
+	fatal(body: string | { req?: Request; res?: Response }) {
+		this.logMessage(body, SeverityNumber.FATAL, 'FATAL')
+	}
 
-  warn(body: string | { req?: Request; res?: Response }) {
-    this.logMessage(body, SeverityNumber.WARN, 'WARN')
-  }
+	warn(body: string | { req?: Request; res?: Response }) {
+		this.logMessage(body, SeverityNumber.WARN, 'WARN')
+	}
 
-  trace(message: string) {
-    if (process.env.NODE_ENV !== 'test') {
-      this.logger.emit({
-        body: message,
-        severityNumber: SeverityNumber.TRACE,
-        severityText: 'TRACE',
-      })
-    }
-  }
+	trace(message: string) {
+		if (process.env.NODE_ENV !== 'test') {
+			this.logger.emit({
+				body: message,
+				severityNumber: SeverityNumber.TRACE,
+				severityText: 'TRACE',
+			})
+		}
+	}
 }
