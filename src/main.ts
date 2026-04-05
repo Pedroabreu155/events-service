@@ -17,6 +17,11 @@ async function bootstrap() {
 	const rabbitMQService = app.get(RabbitMQService)
 	const invalidEventNotifier = new RabbitMQInvalidEventNotifierAdapter(rabbitMQService)
 	app.useLogger(logger)
+	app.enableCors({
+		origin: '*',
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'x-api-key'],
+	})
 
 	app.useGlobalFilters(new AllExceptionsFilter(logger, invalidEventNotifier))
 
