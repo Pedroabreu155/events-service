@@ -81,8 +81,9 @@ export class PrismaAuditEventRepositoryAdapter implements AuditEventRepositoryPo
 			}),
 		])
 
-		const events = results.map((row) =>
-			AuditEvent.create({
+		const events = results.map(row =>
+			AuditEvent.fromPersistence({
+				id: row.id_event,
 				timestamp: row.ts_transaction,
 				userId: row.id_user,
 				clientId: row.id_company,
@@ -94,7 +95,7 @@ export class PrismaAuditEventRepositoryAdapter implements AuditEventRepositoryPo
 				entityId: row.id_entity || undefined,
 				details: (row.js_detail as any) || undefined,
 				createdAt: row.ts_created_at,
-			}),
+			})
 		)
 
 		return { events, total }
